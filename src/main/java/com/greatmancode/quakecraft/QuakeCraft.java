@@ -182,7 +182,7 @@ public class QuakeCraft extends GamePlugin {
 	}
 
 	@SuppressWarnings("deprecation")
-	private void resetInventory(Player player) {
+	private void resetInventory(final Player player) {
 		player.getInventory().clear();
 		player.getInventory().addItem(new ItemStack(Material.WOOD_HOE, 1));
 		String playerName = player.getName();
@@ -191,7 +191,13 @@ public class QuakeCraft extends GamePlugin {
 			player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
 		}
 		player.updateInventory();
-		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+		Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+			@Override
+			public void run() {
+				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+			}
+		}, 40L);
+
 
 	}
 
