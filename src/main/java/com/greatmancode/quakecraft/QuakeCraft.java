@@ -1,6 +1,9 @@
 package com.greatmancode.quakecraft;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import me.ampayne2.UltimateGames.API.ArenaScoreboard;
 import me.ampayne2.UltimateGames.API.GamePlugin;
 import me.ampayne2.UltimateGames.Arenas.Arena;
@@ -13,17 +16,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.SmallFireball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -34,6 +37,8 @@ public class QuakeCraft extends GamePlugin {
 
 	private UltimateGames ultimateGames;
 	private Game game;
+
+	private Map<Arena, HashMap<String, Long>> reloadList = new HashMap<Arena, HashMap<String, Long>>();
 
 	@Override
 	public Boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -54,11 +59,13 @@ public class QuakeCraft extends GamePlugin {
 
 	@Override
 	public Boolean loadArena(Arena arena) {
+		reloadList.put(arena, new HashMap<String, Long>());
 		return true;
 	}
 
 	@Override
 	public Boolean unloadArena(Arena arena) {
+		reloadList.remove(arena);
 		return true;
 	}
 
@@ -184,6 +191,8 @@ public class QuakeCraft extends GamePlugin {
 			player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
 		}
 		player.updateInventory();
+		player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -195,11 +204,32 @@ public class QuakeCraft extends GamePlugin {
 				return;
 			}
 			if (event.getPlayer().getItemInHand().getType().equals(Material.WOOD_HOE)) {
-				event.getPlayer().launchProjectile(Fireball.class);
+				if (reloadList.get(arena).containsKey(playerName)) {
+					Long reloadTime = reloadList.get(arena).get(playerName);
+					if (System.currentTimeMillis() - reloadTime < 1000) { //1s reload
+						return;
+					}
+				}
+				Player p = event.getPlayer();
+
+				event.getPlayer().launchProjectile(SmallFireball.class).setVelocity(p.getLocation().getDirection().multiply(3));
+				reloadList.get(arena).put(playerName, System.currentTimeMillis());
 			}
-
 		}
+	}
 
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void onExplosion(EntityExplodeEvent event) {
+		if (ultimateGames.getArenaManager().isLocationInArena(event.getLocation()) && ultimateGames.getArenaManager().getLocationArena(event.getLocation()).getGame().equals(game)) {
+			event.blockList().clear();
+		}
+	}
+
+	@EventHandler(priority=EventPriority.HIGHEST)
+	public void onBlockIgnite(BlockIgniteEvent event) {
+		if (event.getCause().equals(BlockIgniteEvent.IgniteCause.FIREBALL) && ultimateGames.getArenaManager().isLocationInArena(event.getBlock().getLocation()) && ultimateGames.getArenaManager().getLocationArena(event.getBlock().getLocation()).getGame().equals(game)) {
+			event.setCancelled(true);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
@@ -215,13 +245,19 @@ public class QuakeCraft extends GamePlugin {
 			if (!arena.getGame().equals(game)) {
 				return;
 			}
-			if (!(damager instanceof Fireball)) {
+
+			if (!(damager instanceof SmallFireball)) {
 				event.setCancelled(true);
 				return;
 			}
 
-			damaged.setHealth(0);
+
 			String killerName = ((Player)((Fireball) damager).getShooter()).getName();
+			if (killerName.equals(damaged.getName())) {
+				event.setCancelled(true);
+				return;
+			}
+			damaged.setHealth(0);
 			for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
 				if (scoreBoard.getName().equals("Kills") && killerName != null) {
 					scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
@@ -237,7 +273,7 @@ public class QuakeCraft extends GamePlugin {
 	public void onPlayerDamage(EntityDamageEvent event) {
 		if (event.getEntity() instanceof Player) {
 			String playerName = ((Player) event.getEntity()).getName();
-			if (ultimateGames.getPlayerManager().isPlayerInArena(playerName) && ultimateGames.getPlayerManager().getPlayerArena(playerName).getStatus() != ArenaStatus.RUNNING) {
+			if (ultimateGames.getPlayerManager().isPlayerInArena(playerName) && ultimateGames.getPlayerManager().getPlayerArena(playerName).getGame().equals(game)) {
 				event.setCancelled(true);
 			}
 		}
