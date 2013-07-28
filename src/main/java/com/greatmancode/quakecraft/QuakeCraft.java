@@ -195,6 +195,7 @@ public class QuakeCraft extends GamePlugin {
 			@Override
 			public void run() {
 				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 1));
 			}
 		}, 40L);
 
