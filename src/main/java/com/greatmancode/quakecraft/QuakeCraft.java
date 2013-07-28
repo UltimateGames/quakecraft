@@ -149,7 +149,7 @@ public class QuakeCraft extends GamePlugin {
 		spawnPoint.lock(false);
 		spawnPoint.teleportPlayer(playerName);
 		Player player = Bukkit.getPlayer(playerName);
-		resetInventory(player);
+		resetInventory(arena, player);
 		return true;
 	}
 
@@ -182,22 +182,22 @@ public class QuakeCraft extends GamePlugin {
 	}
 
 	@SuppressWarnings("deprecation")
-	private void resetInventory(final Player player) {
-		player.getInventory().clear();
-		player.getInventory().addItem(new ItemStack(Material.WOOD_HOE, 1));
-		String playerName = player.getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
+	private void resetInventory(Arena arena, final Player player) {
+		if (arena.getStatus().equals(ArenaStatus.RUNNING) || arena.getStatus().equals(ArenaStatus.OPEN)) {
+			player.getInventory().clear();
+			player.getInventory().addItem(new ItemStack(Material.WOOD_HOE, 1));
+			String playerName = player.getName();
 			player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
+			player.updateInventory();
+			Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+				@Override
+				public void run() {
+					player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+					player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 1));
+				}
+			}, 40L);
 		}
-		player.updateInventory();
-		Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
-			@Override
-			public void run() {
-				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
-				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 6000, 1));
-			}
-		}, 40L);
+
 
 
 	}
@@ -210,18 +210,21 @@ public class QuakeCraft extends GamePlugin {
 			if (!arena.getGame().equals(game)) {
 				return;
 			}
-			if (event.getPlayer().getItemInHand().getType().equals(Material.WOOD_HOE)) {
-				if (reloadList.get(arena).containsKey(playerName)) {
-					Long reloadTime = reloadList.get(arena).get(playerName);
-					if (System.currentTimeMillis() - reloadTime < 1000) { //1s reload
-						return;
+			if (arena.getStatus().equals(ArenaStatus.RUNNING)) {
+				if (event.getPlayer().getItemInHand().getType().equals(Material.WOOD_HOE)) {
+					if (reloadList.get(arena).containsKey(playerName)) {
+						Long reloadTime = reloadList.get(arena).get(playerName);
+						if (System.currentTimeMillis() - reloadTime < 1000) { //1s reload
+							return;
+						}
 					}
-				}
-				Player p = event.getPlayer();
+					Player p = event.getPlayer();
 
-				event.getPlayer().launchProjectile(SmallFireball.class).setVelocity(p.getLocation().getDirection().multiply(3));
-				reloadList.get(arena).put(playerName, System.currentTimeMillis());
+					event.getPlayer().launchProjectile(SmallFireball.class).setVelocity(p.getLocation().getDirection().multiply(3));
+					reloadList.get(arena).put(playerName, System.currentTimeMillis());
+				}
 			}
+
 		}
 	}
 
@@ -252,25 +255,26 @@ public class QuakeCraft extends GamePlugin {
 			if (!arena.getGame().equals(game)) {
 				return;
 			}
+			if (arena.getStatus().equals(ArenaStatus.RUNNING)) {
+				if (!(damager instanceof SmallFireball)) {
+					event.setCancelled(true);
+					return;
+				}
 
-			if (!(damager instanceof SmallFireball)) {
-				event.setCancelled(true);
-				return;
-			}
 
-
-			String killerName = ((Player)((Fireball) damager).getShooter()).getName();
-			if (killerName.equals(damaged.getName())) {
-				event.setCancelled(true);
-				return;
-			}
-			damaged.setHealth(0);
-			for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
-				if (scoreBoard.getName().equals("Kills") && killerName != null) {
-					scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
-					if (scoreBoard.getScore(killerName) == ultimateGames.getConfigManager().getGameConfig(game).getConfig().get("CustomValues.MaxKills")) {
-						ultimateGames.getArenaManager().endArena(arena);
-						return;
+				String killerName = ((Player)((Fireball) damager).getShooter()).getName();
+				if (killerName.equals(damaged.getName())) {
+					event.setCancelled(true);
+					return;
+				}
+				damaged.setHealth(0);
+				for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
+					if (scoreBoard.getName().equals("Kills") && killerName != null) {
+						scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
+						if (scoreBoard.getScore(killerName) == ultimateGames.getConfigManager().getGameConfig(game).getConfig().get("CustomValues.MaxKills")) {
+							ultimateGames.getArenaManager().endArena(arena);
+							return;
+						}
 					}
 				}
 			}
@@ -295,16 +299,6 @@ public class QuakeCraft extends GamePlugin {
 			if (!arena.getGame().equals(game)) {
 				return;
 			}
-
-			String killerName = null;
-			Player killer = event.getEntity().getKiller();
-			if (killer != null) {
-				killerName = killer.getName();
-				if (ultimateGames.getPlayerManager().isPlayerInArena(killer.getName()) && ultimateGames.getPlayerManager().getPlayerArena(killer.getName()).equals(arena)) {
-					killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 10, 2));
-				}
-			}
-
 			event.getDrops().clear();
 		}
 	}
@@ -316,8 +310,11 @@ public class QuakeCraft extends GamePlugin {
 			if (!arena.getGame().equals(game)) {
 				return;
 			}
-			event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
-			resetInventory(event.getPlayer());
+			if (arena.getStatus().equals(ArenaStatus.RUNNING)) {
+				event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
+				resetInventory(arena, event.getPlayer());
+			}
+
 		}
 	}
 }
