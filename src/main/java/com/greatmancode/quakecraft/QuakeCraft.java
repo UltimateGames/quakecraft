@@ -269,6 +269,7 @@ public class QuakeCraft extends GamePlugin {
 					scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
 					if (scoreBoard.getScore(killerName) == ultimateGames.getConfigManager().getGameConfig(game).getConfig().get("CustomValues.MaxKills")) {
 						ultimateGames.getArenaManager().endArena(arena);
+						return;
 					}
 				}
 			}
