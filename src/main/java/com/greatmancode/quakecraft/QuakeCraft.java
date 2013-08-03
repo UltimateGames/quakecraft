@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.ampayne2.UltimateGames.API.ArenaScoreboard;
-import me.ampayne2.UltimateGames.API.GamePlugin;
-import me.ampayne2.UltimateGames.Arenas.Arena;
-import me.ampayne2.UltimateGames.Enums.ArenaStatus;
-import me.ampayne2.UltimateGames.Games.Game;
-import me.ampayne2.UltimateGames.Players.SpawnPoint;
-import me.ampayne2.UltimateGames.UltimateGames;
+import me.ampayne2.ultimategames.UltimateGames;
+import me.ampayne2.ultimategames.api.ArenaScoreboard;
+import me.ampayne2.ultimategames.api.GamePlugin;
+import me.ampayne2.ultimategames.arenas.Arena;
+import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.games.Game;
+import me.ampayne2.ultimategames.players.SpawnPoint;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -272,6 +272,10 @@ public class QuakeCraft extends GamePlugin {
 					if (scoreBoard.getName().equals("Kills") && killerName != null) {
 						scoreBoard.setScore(killerName, scoreBoard.getScore(killerName) + 1);
 						if (scoreBoard.getScore(killerName) == ultimateGames.getConfigManager().getGameConfig(game).getConfig().get("CustomValues.MaxKills")) {
+							if (ultimateGames.getCountdownManager().isEndingCountdownEnabled(arena)) {
+								ultimateGames.getCountdownManager().stopEndingCountdown(arena);
+							}
+							ultimateGames.getCountdownManager().createEndingCountdown(arena, 1, true); //Prevent people from locking arenas
 							ultimateGames.getArenaManager().endArena(arena);
 							return;
 						}
