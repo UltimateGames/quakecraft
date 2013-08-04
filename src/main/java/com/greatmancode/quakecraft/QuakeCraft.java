@@ -9,17 +9,19 @@ import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.enums.SignType;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.players.SpawnPoint;
+import me.ampayne2.ultimategames.signs.UGSign;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SmallFireball;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -172,12 +174,12 @@ public class QuakeCraft extends GamePlugin {
 	}
 
 	@Override
-	public void handleInputSignCreate(Arena arena, Sign sign, String s) {
+	public void handleUGSignCreate(UGSign ugSign, SignType signType) {
 
 	}
 
 	@Override
-	public void handleInputSignClick(Arena arena, Sign sign, String s, PlayerInteractEvent playerInteractEvent) {
+	public void handleInputSignTrigger(UGSign ugSign, SignType signType, Event event) {
 
 	}
 
@@ -186,7 +188,6 @@ public class QuakeCraft extends GamePlugin {
 		if (arena.getStatus().equals(ArenaStatus.RUNNING) || arena.getStatus().equals(ArenaStatus.OPEN)) {
 			player.getInventory().clear();
 			player.getInventory().addItem(new ItemStack(Material.WOOD_HOE, 1));
-			String playerName = player.getName();
 			player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
 			player.updateInventory();
 			Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
@@ -197,9 +198,6 @@ public class QuakeCraft extends GamePlugin {
 				}
 			}, 40L);
 		}
-
-
-
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
