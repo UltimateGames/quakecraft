@@ -26,4 +26,4 @@ CustomValues:
 Instructions:
 - "Kill others as much as possible in the time given!"
 Messages:
-  GameEnd: "%s won with %s kills!"
+  GameEnd: "%s won %s on arena %s!"
