@@ -21,9 +21,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -40,8 +39,13 @@ public class QuakeCraft extends GamePlugin {
 
 	private Map<String, Float> reloadList = new HashMap<String, Float>();
 	private Map<String, Integer> reloadTasks = new HashMap<String, Integer>();
+	private Integer LEVEL_MIN = 0;
 	private Float EXP_MAX = 1.0F;
+	private Float EXP_MIN = 0.0F;
 	private Float EXP_INCREMENT = 0.1F;
+	private String DEFAULT_WINNER = "Nobody";
+	private Integer DEFAULT_SCORE = 0;
+	private Integer WIN_THRESHOLD = 25;
 
 	@Override
 	public Boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -101,10 +105,10 @@ public class QuakeCraft extends GamePlugin {
 
 	@Override
 	public Boolean endArena(Arena arena) {
-		String highestScorer = "Nobody";
-		Integer highScore = 0;
+		String highestScorer = DEFAULT_WINNER;
+		Integer highScore = DEFAULT_SCORE;
 		List<String> players = arena.getPlayers();
-		for (ArenaScoreboard scoreBoard : new ArrayList<ArenaScoreboard>(ultimateGames.getScoreboardManager().getArenaScoreboards(arena))) {
+		for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(arena)) {
 			if (scoreBoard.getName().equals("Gibs")) {
 				for (String playerName : players) {
 					Integer playerScore = scoreBoard.getScore(playerName);
@@ -149,7 +153,6 @@ public class QuakeCraft extends GamePlugin {
 		spawnPoint.teleportPlayer(playerName);
 		Player player = Bukkit.getPlayer(playerName);
 		resetInventory(arena, player);
-		reloadList.put(playerName, EXP_MAX);
 		return true;
 	}
 
@@ -175,17 +178,75 @@ public class QuakeCraft extends GamePlugin {
 	public void handleInputSignTrigger(UGSign ugSign, SignType signType, Event event) {
 
 	}
+	
+	@Override
+	public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
+		event.getDrops().clear();
+		ultimateGames.getUtils().autoRespawn(event.getEntity());
+	}
+	
+	@Override
+	public void onPlayerRespawn(Arena arena, PlayerRespawnEvent event) {
+		event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
+		resetInventory(arena, event.getPlayer());
+	}
+	
+	@Override
+	public void onEntityDamage(Arena arena, EntityDamageEvent event) {
+		if (event.getEntity() instanceof Player) {
+			event.setCancelled(true);
+		}
+	}
+	
+	@Override
+	public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
+		
+	}
+	
+	@Override
+	public void onPlayerInteract(Arena arena, PlayerInteractEvent event) {
+		if (event.getAction() != Action.RIGHT_CLICK_AIR || event.getMaterial() != Material.BLAZE_ROD) {
+			return;
+		}
+		Player player = event.getPlayer();
+		String playerName = player.getName();
+		if (reloadList.containsKey(playerName) && reloadList.get(playerName) >= EXP_MAX) {
+			List<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, true, true);
+			for (Entity entity : players) {
+				if (entity instanceof Player) {
+					Player targetedPlayer = (Player) entity;
+					String targetedPlayerName = targetedPlayer.getName();
+					if (ultimateGames.getPlayerManager().isPlayerInArena(targetedPlayerName) && ultimateGames.getPlayerManager().getPlayerArena(targetedPlayerName).equals(ultimateGames.getPlayerManager().getPlayerArena(playerName))) {
+						targetedPlayer.setHealth(0.0);
+						for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(ultimateGames.getPlayerManager().getPlayerArena(playerName))) {
+							if (scoreBoard.getName().equals("Gibs")) {
+								scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
+								if (scoreBoard.getScore(playerName) >= WIN_THRESHOLD) {
+									ultimateGames.getArenaManager().endArena(arena);
+								}
+							}
+						}
+					}
+				}
+			}
+			reloadList.put(playerName, EXP_MIN);
+			player.setExp(EXP_MIN);
+			startCooldown(player);
+		}
+	}
 
 	@SuppressWarnings("deprecation")
 	private void resetInventory(Arena arena, final Player player) {
 		player.getInventory().clear();
-		ItemStack railgun = new ItemStack(Material.BREWING_STAND_ITEM);
+		ItemStack railgun = new ItemStack(Material.BLAZE_ROD);
 		ItemMeta railgunMeta = railgun.getItemMeta();
 		railgunMeta.setDisplayName("Railgun");
 		railgun.setItemMeta(railgunMeta);
 		player.getInventory().addItem(railgun);
 		player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(arena.getGame()));
 		player.updateInventory();
+		reloadList.put(player.getName(), EXP_MAX);
+		player.setLevel(LEVEL_MIN);
 		player.setExp(EXP_MAX);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
 			@Override
@@ -195,76 +256,17 @@ public class QuakeCraft extends GamePlugin {
 			}
 		}, 40L);
 	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (!(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) || event.getItem().getType() != Material.BREWING_STAND_ITEM) {
-			return;
-		}
-		Player player = event.getPlayer();
-		String playerName = player.getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName) && ultimateGames.getPlayerManager().getPlayerArena(playerName).getGame().equals(game) && !reloadList.containsKey(playerName) && player.getExp() >= EXP_MAX) {
-			List<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, true, true);
-			for (Entity entity : players) {
-				if (entity instanceof Player) {
-					Player targetedPlayer = (Player) entity;
-					targetedPlayer.setHealth(0.0);
-					for (ArenaScoreboard scoreBoard : ultimateGames.getScoreboardManager().getArenaScoreboards(ultimateGames.getPlayerManager().getPlayerArena(playerName))) {
-						if (scoreBoard.getName().equals("Gibs")) {
-							scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDamage(EntityDamageEvent event) {
-		if (event.getEntity() instanceof Player) {
-			String playerName = ((Player) event.getEntity()).getName();
-			if (ultimateGames.getPlayerManager().isPlayerInArena(playerName) && ultimateGames.getPlayerManager().getPlayerArena(playerName).getGame().equals(game)) {
-				event.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerDeath(PlayerDeathEvent event) {
-		Player player = event.getEntity();
-		String playerName = player.getName();
-		if (ultimateGames.getPlayerManager().isPlayerInArena(playerName)) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
-			if (!arena.getGame().equals(game)) {
-				return;
-			}
-			event.getDrops().clear();
-			ultimateGames.getUtils().autoRespawn(player);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerRespawn(PlayerRespawnEvent event) {
-		if (ultimateGames.getPlayerManager().isPlayerInArena(event.getPlayer().getName())) {
-			Arena arena = ultimateGames.getPlayerManager().getPlayerArena(event.getPlayer().getName());
-			if (!arena.getGame().equals(game)) {
-				return;
-			}
-			if (arena.getStatus().equals(ArenaStatus.RUNNING)) {
-				event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
-				resetInventory(arena, event.getPlayer());
-			}
-		}
-	}
 	
-	public void startCooldown(final String playerName) {
-		reloadTasks.put(playerName, Bukkit.getScheduler().scheduleSyncRepeatingTask(ultimateGames, new Runnable() {
+	public void startCooldown(final Player player) {
+		reloadTasks.put(player.getName(), Bukkit.getScheduler().scheduleSyncRepeatingTask(ultimateGames, new Runnable() {
 			@Override
 			public void run() {
+				String playerName = player.getName();
 				if (reloadList.containsKey(playerName)) {
-					reloadList.put(playerName, reloadList.get(playerName) + EXP_INCREMENT);
-					if (reloadList.get(playerName) == EXP_MAX) {
-						reloadList.remove(playerName);
+					Float newExp = reloadList.get(playerName) + EXP_INCREMENT;
+					reloadList.put(playerName, newExp);
+					player.setExp(newExp);
+					if (newExp >= EXP_MAX) {
 						endCooldown(playerName);
 					}
 				}
@@ -275,6 +277,7 @@ public class QuakeCraft extends GamePlugin {
 	public void endCooldown(String playerName) {
 		if (reloadTasks.containsKey(playerName)) {
 			Bukkit.getScheduler().cancelTask(reloadTasks.get(playerName));
+			reloadTasks.remove(playerName);
 		}
 	}
 }
