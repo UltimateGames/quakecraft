@@ -10,22 +10,19 @@ import me.ampayne2.ultimategames.api.ArenaScoreboard;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
-import me.ampayne2.ultimategames.enums.SignType;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.players.SpawnPoint;
-import me.ampayne2.ultimategames.signs.UGSign;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -163,21 +160,6 @@ public class QuakeCraft extends GamePlugin {
 		}
 		return true;
 	}
-
-	@Override
-	public Boolean onArenaCommand(Arena arena, String s, CommandSender commandSender, String[] strings) {
-		return true;
-	}
-
-	@Override
-	public void handleUGSignCreate(UGSign ugSign, SignType signType) {
-
-	}
-
-	@Override
-	public void handleInputSignTrigger(UGSign ugSign, SignType signType, Event event) {
-
-	}
 	
 	@Override
 	public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
@@ -196,11 +178,6 @@ public class QuakeCraft extends GamePlugin {
 		if (event.getEntity() instanceof Player) {
 			event.setCancelled(true);
 		}
-	}
-	
-	@Override
-	public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
-		
 	}
 	
 	@Override
@@ -234,6 +211,21 @@ public class QuakeCraft extends GamePlugin {
 			startCooldown(player);
 		}
 	}
+	
+    @Override
+    public void onPlayerFoodLevelChange(Arena arena, FoodLevelChangeEvent event) {
+        event.setCancelled(true);
+    }
+
+    @Override
+    public void onItemPickup(Arena arena, PlayerPickupItemEvent event) {
+        event.setCancelled(true);
+    }
+
+    @Override
+    public void onItemDrop(Arena arena, PlayerDropItemEvent event) {
+        event.setCancelled(true);
+    }
 
 	@SuppressWarnings("deprecation")
 	private void resetInventory(Arena arena, final Player player) {
