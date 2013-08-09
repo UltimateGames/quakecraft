@@ -101,7 +101,7 @@ public class QuakeCraft extends GamePlugin {
 	}
 
 	@Override
-	public Boolean endArena(Arena arena) {
+	public void endArena(Arena arena) {
 		String highestScorer = DEFAULT_WINNER;
 		Integer highScore = DEFAULT_SCORE;
 		List<String> players = arena.getPlayers();
@@ -121,8 +121,6 @@ public class QuakeCraft extends GamePlugin {
 		for (String playerName : players) {
 			ultimateGames.getPlayerManager().removePlayerFromArena(playerName, arena, false);
 		}
-		ultimateGames.getArenaManager().openArena(arena);
-		return true;
 	}
 
 	@Override
