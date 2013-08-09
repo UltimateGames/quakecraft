@@ -146,7 +146,7 @@ public class QuakeCraft extends GamePlugin {
 		SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
 		spawnPoint.lock(false);
 		spawnPoint.teleportPlayer(playerName);
-		Player player = Bukkit.getPlayer(playerName);
+		Player player = Bukkit.getPlayerExact(playerName);
 		resetInventory(arena, player);
 		return true;
 	}
