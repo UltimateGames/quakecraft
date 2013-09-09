@@ -14,16 +14,17 @@ DefaultSettings:
     Store-Exp: false
     Store-Effects: false
     Store-Gamemode: false
-  Reset-After-Match: true
+  Reset-After-Match: false
   Allow-Explosion-Damage: true
   Allow-Explosion-Block-Breaking: false
-  Allow-Building: false
-  Allow-Breaking: false
+  Allow-Mob-Spawning: false
+  Use-Whitelist-As-Blacklist: false
 CustomValues:
   StartWaitTime: 30
   MaxKills: 25
-
 Instructions:
-- "Kill others as much as possible in the time given!"
+- "Right click with your railgun to gib other players!\n\nYour railgun takes one second to reload.\n\n&4First to 25 wins!"
 Messages:
   GameEnd: "%s won %s on arena %s!"
+  Gib: "%s gibbed %s!"
+  MultipleKill: "&c&s kill!"
