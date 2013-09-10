@@ -207,7 +207,7 @@ public class QuakeCraft extends GamePlugin {
             PlayerManager playerManager = ultimateGames.getPlayerManager();
             Message messageManager = ultimateGames.getMessageManager();
             ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(playerManager.getPlayerArena(playerName));
-            Set<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, true, true);
+            Set<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, false, true, true);
             for (Entity entity : players) {
                 if (entity instanceof Player) {
                     Player targetedPlayer = (Player) entity;
