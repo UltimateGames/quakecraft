@@ -1,5 +1,6 @@
 package com.greatmancode.quakecraft;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +11,7 @@ import me.ampayne2.ultimategames.Message;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.SpawnPoint;
+import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.players.PlayerManager;
@@ -144,7 +145,7 @@ public class QuakeCraft extends GamePlugin {
         if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
             ultimateGames.getCountdownManager().createStartingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.StartWaitTime"));
         }
-        SpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
+        PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);
         spawnPoint.teleportPlayer(player);
         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
@@ -152,7 +153,7 @@ public class QuakeCraft extends GamePlugin {
         }
         player.setHealth(20.0);
         player.setFoodLevel(20);
-        resetInventory(arena, player);
+        resetInventory(player);
         return true;
     }
 
@@ -167,8 +168,19 @@ public class QuakeCraft extends GamePlugin {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public Boolean addSpectator(Player player, Arena arena) {
+        ultimateGames.getSpawnpointManager().getSpectatorSpawnPoint(arena).teleportPlayer(player);
+        for (PotionEffect potionEffect : player.getActivePotionEffects()) {
+            player.removePotionEffect(potionEffect.getType());
+        }
+        player.setHealth(20.0);
+        player.setFoodLevel(20);
+        player.getInventory().clear();
+        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().setArmorContents(null);
+        player.updateInventory();
         return true;
     }
 
@@ -186,7 +198,7 @@ public class QuakeCraft extends GamePlugin {
     @Override
     public void onPlayerRespawn(Arena arena, PlayerRespawnEvent event) {
         event.setRespawnLocation(ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena).getLocation());
-        resetInventory(arena, event.getPlayer());
+        resetInventory(event.getPlayer());
     }
 
     @Override
@@ -207,7 +219,7 @@ public class QuakeCraft extends GamePlugin {
             PlayerManager playerManager = ultimateGames.getPlayerManager();
             Message messageManager = ultimateGames.getMessageManager();
             ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(playerManager.getPlayerArena(playerName));
-            Set<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, false, true, true);
+            Collection<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, 0, false, true, true);
             for (Entity entity : players) {
                 if (entity instanceof Player) {
                     Player targetedPlayer = (Player) entity;
@@ -229,7 +241,7 @@ public class QuakeCraft extends GamePlugin {
                     messageManager.broadcastReplacedGameMessageToArena(game, arena, "MultipleKill", "Triple");
                     break;
                 case 4:
-                    messageManager.broadcastReplacedGameMessageToArena(game, arena, "MultipleKill", "Quadruple");
+                    messageManager.broadcastReplacedGameMessageToArena(game, arena, "MultipleKill", "Ultra");
                     break;
                 default:
 
@@ -237,8 +249,8 @@ public class QuakeCraft extends GamePlugin {
             if (scoreBoard.getScore(playerName) >= WIN_THRESHOLD) {
                 ultimateGames.getArenaManager().endArena(arena);
             } else {
-                startCooldown(player);
                 player.setExp(EXP_MIN);
+                startCooldown(player);
             }
         }
     }
@@ -259,21 +271,25 @@ public class QuakeCraft extends GamePlugin {
     }
 
     @SuppressWarnings("deprecation")
-    private void resetInventory(Arena arena, final Player player) {
+    private void resetInventory(Player player) {
+        final String playerName = player.getName();
         player.getInventory().clear();
         ItemStack railgun = new ItemStack(Material.BLAZE_ROD);
         ItemMeta railgunMeta = railgun.getItemMeta();
         railgunMeta.setDisplayName("Railgun");
         railgun.setItemMeta(railgunMeta);
-        player.getInventory().addItem(railgun, ultimateGames.getUtils().createInstructionBook(arena.getGame()));
+        player.getInventory().addItem(railgun, ultimateGames.getUtils().createInstructionBook(game));
         player.updateInventory();
-        reloaders.add(player.getName());
+        reloaders.add(playerName);
         player.setLevel(LEVEL_MIN);
         player.setExp(EXP_MAX);
         Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
             @Override
             public void run() {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+                PlayerManager playerManager = ultimateGames.getPlayerManager();
+                if (playerManager.isPlayerInArena(playerName) && playerManager.getPlayerArena(playerName).getGame().equals(game)) {
+                    Bukkit.getPlayerExact(playerName).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 1));
+                }
             }
         }, 40L);
     }
