@@ -17,9 +17,11 @@ import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.players.PlayerManager;
 import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 
+import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -121,7 +123,7 @@ public class QuakeCraft extends GamePlugin {
             }
         }
         if (highestScorer != null) {
-            ultimateGames.getMessageManager().broadcastReplacedGameMessage(game, "GameEnd", highestScorer, game.getName(), arena.getName());
+            ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "GameEnd", highestScorer, game.getName(), arena.getName());
         }
     }
 
@@ -142,7 +144,7 @@ public class QuakeCraft extends GamePlugin {
 
     @Override
     public Boolean addPlayer(Player player, Arena arena) {
-        if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().isStartingCountdownEnabled(arena)) {
+        if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().hasStartingCountdown(arena)) {
             ultimateGames.getCountdownManager().createStartingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.StartWaitTime"));
         }
         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
@@ -178,7 +180,7 @@ public class QuakeCraft extends GamePlugin {
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.getInventory().clear();
-        player.getInventory().addItem(ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(UGUtils.createInstructionBook(game));
         player.getInventory().setArmorContents(null);
         player.updateInventory();
         return true;
@@ -192,7 +194,7 @@ public class QuakeCraft extends GamePlugin {
     @Override
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
         event.getDrops().clear();
-        ultimateGames.getUtils().autoRespawn(event.getEntity());
+        UGUtils.autoRespawn(event.getEntity());
     }
 
     @Override
@@ -219,14 +221,14 @@ public class QuakeCraft extends GamePlugin {
             PlayerManager playerManager = ultimateGames.getPlayerManager();
             Message messageManager = ultimateGames.getMessageManager();
             ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(playerManager.getPlayerArena(playerName));
-            Collection<Entity> players = ultimateGames.getUtils().getEntityTargets(player, 100, 0, false, true, true);
+            Collection<LivingEntity> players = UGUtils.getLivingEntityTargets(player, 100, 0, false, true, true);
             for (Entity entity : players) {
                 if (entity instanceof Player) {
                     Player targetedPlayer = (Player) entity;
                     String targetedPlayerName = targetedPlayer.getName();
                     if (playerManager.isPlayerInArena(targetedPlayerName) && playerManager.getPlayerArena(targetedPlayerName).equals(arena)) {
                         targetedPlayer.setHealth(0.0);
-                        messageManager.broadcastReplacedGameMessageToArena(game, arena, "Gib", playerName, targetedPlayerName);
+                        messageManager.sendGameMessage(arena, game, "Gib", playerName, targetedPlayerName);
                         if (scoreBoard != null) {
                             scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
                         }
@@ -235,13 +237,13 @@ public class QuakeCraft extends GamePlugin {
             }
             switch (players.size()) {
                 case 2:
-                    messageManager.broadcastReplacedGameMessageToArena(game, arena, "MultipleKill", "Double");
+                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Double");
                     break;
                 case 3:
-                    messageManager.broadcastReplacedGameMessageToArena(game, arena, "MultipleKill", "Triple");
+                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Triple");
                     break;
                 case 4:
-                    messageManager.broadcastReplacedGameMessageToArena(game, arena, "MultipleKill", "Ultra");
+                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Ultra");
                     break;
                 default:
 
@@ -278,7 +280,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta railgunMeta = railgun.getItemMeta();
         railgunMeta.setDisplayName("Railgun");
         railgun.setItemMeta(railgunMeta);
-        player.getInventory().addItem(railgun, ultimateGames.getUtils().createInstructionBook(game));
+        player.getInventory().addItem(railgun, UGUtils.createInstructionBook(game));
         player.updateInventory();
         reloaders.add(playerName);
         player.setLevel(LEVEL_MIN);
