@@ -126,6 +126,7 @@ public class QuakeCraft extends GamePlugin {
             ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "GameEnd", highestScorer, game.getName(), arena.getName());
             if (highScore == 25) {
                 ultimateGames.getPointManager().addPoint(game, highestScorer, "store", 25);
+                ultimateGames.getPointManager().addPoint(game, highestScorer, "win", 1);
             }
         }
     }
