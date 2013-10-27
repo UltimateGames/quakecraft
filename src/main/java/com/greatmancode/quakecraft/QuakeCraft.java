@@ -124,6 +124,9 @@ public class QuakeCraft extends GamePlugin {
         }
         if (highestScorer != null) {
             ultimateGames.getMessageManager().sendGameMessage(ultimateGames.getServer(), game, "GameEnd", highestScorer, game.getName(), arena.getName());
+            if (highScore == 25) {
+                ultimateGames.getPointManager().addPoint(game, highestScorer, "store", 25);
+            }
         }
     }
 
@@ -229,6 +232,8 @@ public class QuakeCraft extends GamePlugin {
                     if (playerManager.isPlayerInArena(targetedPlayerName) && playerManager.getPlayerArena(targetedPlayerName).equals(arena)) {
                         targetedPlayer.setHealth(0.0);
                         messageManager.sendGameMessage(arena, game, "Gib", playerName, targetedPlayerName);
+                        ultimateGames.getPointManager().addPoint(game, playerName, "kill", 1);
+                        ultimateGames.getPointManager().addPoint(game, playerName, "store", 1);
                         if (scoreBoard != null) {
                             scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
                         }
