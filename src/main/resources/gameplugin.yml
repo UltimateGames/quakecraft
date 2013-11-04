@@ -2,8 +2,6 @@ main-class: "com.greatmancode.quakecraft.QuakeCraft"
 description: "The official Ultimate Games Quakecraft game"
 version: "1.0"
 author: "greatman"
-scoreTypeName: "Kills:Deaths"
-scoreType: "POINTS_HIGHER"
 playerType: "CONFIGUREABLE"
 DefaultSettings:
   MinPlayers: 2
@@ -27,4 +25,4 @@ Instructions:
 Messages:
   GameEnd: "%s won %s on arena %s!"
   Gib: "%s gibbed %s!"
-  MultipleKill: "&c&s kill!"
+  MultipleKill: "&c%s kill!"
