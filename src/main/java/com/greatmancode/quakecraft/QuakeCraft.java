@@ -49,7 +49,7 @@ public class QuakeCraft extends GamePlugin {
     private static final float EXP_MIN = 0.0F;
     private static final float EXP_INCREMENT = 0.1F;
     private static final GameSound SHOOT_SOUND = new GameSound(Sound.BLAZE_HIT, 1, 2);
-    private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 1, 1);
+    private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 2, 1);
 
     @Override
     public Boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -234,6 +234,7 @@ public class QuakeCraft extends GamePlugin {
             ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(playerManager.getPlayerArena(playerName));
             Collection<LivingEntity> players = UGUtils.getLivingEntityTargets(player, 100, 0, false, true, true);
             SHOOT_SOUND.play(player.getEyeLocation());
+            int playersShot = 0;
             for (LivingEntity entity : players) {
                 if (entity instanceof Player) {
                     Player targetedPlayer = (Player) entity;
@@ -251,10 +252,11 @@ public class QuakeCraft extends GamePlugin {
                         if (scoreBoard != null) {
                             scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
                         }
+                        playersShot++;
                     }
                 }
             }
-            switch (players.size()) {
+            switch (playersShot) {
                 case 2:
                     messageManager.sendGameMessage(arena, game, "MultipleKill", "Double");
                     break;
