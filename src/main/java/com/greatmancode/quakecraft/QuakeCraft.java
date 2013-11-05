@@ -12,6 +12,7 @@ import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
+import me.ampayne2.ultimategames.arenas.SpawnpointManager;
 import me.ampayne2.ultimategames.effects.GameSound;
 import me.ampayne2.ultimategames.enums.ArenaStatus;
 import me.ampayne2.ultimategames.games.Game;
@@ -47,8 +48,8 @@ public class QuakeCraft extends GamePlugin {
     private static final float EXP_MAX = 1.0F;
     private static final float EXP_MIN = 0.0F;
     private static final float EXP_INCREMENT = 0.1F;
-    private static final GameSound SHOOT_SOUND = new GameSound(Sound.BLAZE_HIT, 5, 2);
-    private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 5, 1);
+    private static final GameSound SHOOT_SOUND = new GameSound(Sound.BLAZE_HIT, 1, 2);
+    private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 1, 1);
 
     @Override
     public Boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -97,9 +98,20 @@ public class QuakeCraft extends GamePlugin {
         ultimateGames.getCountdownManager().createEndingCountdown(arena, 1200, false);
 
         ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Gibs");
+        SpawnpointManager spawnpointManager = ultimateGames.getSpawnpointManager();
         for (String playerName : arena.getPlayers()) {
-            scoreBoard.addPlayer(Bukkit.getPlayerExact(playerName));
+        	Player player = Bukkit.getPlayerExact(playerName);
+            scoreBoard.addPlayer(player);
             scoreBoard.setScore(playerName, 0);
+            PlayerSpawnPoint spawnPoint = spawnpointManager.getRandomSpawnPoint(arena);
+            while (spawnPoint.getPlayer() != null) {
+            	spawnPoint = spawnpointManager.getRandomSpawnPoint(arena);
+            }
+            spawnPoint.lock(true);
+            spawnPoint.teleportPlayer(player);
+        }
+        for (PlayerSpawnPoint spawnPoint : spawnpointManager.getSpawnPointsOfArena(arena)) {
+        	spawnPoint.lock(false);
         }
         scoreBoard.setVisible(true);
 
