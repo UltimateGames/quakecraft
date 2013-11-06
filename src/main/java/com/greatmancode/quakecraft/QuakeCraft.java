@@ -1,36 +1,30 @@
 package com.greatmancode.quakecraft;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.ampayne2.ultimategames.Message;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.PlayerSpawnPoint;
-import me.ampayne2.ultimategames.arenas.SpawnpointManager;
-import me.ampayne2.ultimategames.effects.GameSound;
-import me.ampayne2.ultimategames.enums.ArenaStatus;
+import me.ampayne2.ultimategames.arenas.ArenaStatus;
+import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
+import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
+import me.ampayne2.ultimategames.arenas.spawnpoints.SpawnpointManager;
 import me.ampayne2.ultimategames.games.Game;
+import me.ampayne2.ultimategames.games.items.GameItem;
 import me.ampayne2.ultimategames.players.PlayerManager;
-import me.ampayne2.ultimategames.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.utils.UGUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -43,19 +37,22 @@ public class QuakeCraft extends GamePlugin {
     private Game game;
     private Set<String> reloaders = new HashSet<String>();
     private Map<String, Integer> reloadTasks = new HashMap<String, Integer>();
-    private int WIN_THRESHOLD;
-    private static final int LEVEL_MIN = 0;
+    private GameItem railgun;
     private static final float EXP_MAX = 1.0F;
     private static final float EXP_MIN = 0.0F;
     private static final float EXP_INCREMENT = 0.1F;
-    private static final GameSound SHOOT_SOUND = new GameSound(Sound.BLAZE_HIT, 1, 2);
-    private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 2, 1);
+    private static final int LEVEL_MIN = 0;
 
     @Override
     public Boolean loadGame(UltimateGames ultimateGames, Game game) {
         this.ultimateGames = ultimateGames;
         this.game = game;
-        WIN_THRESHOLD = ultimateGames.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.MaxKills", 25);
+        ItemStack railgunItem = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta railgunMeta = railgunItem.getItemMeta();
+        railgunMeta.setDisplayName("Railgun");
+        railgunItem.setItemMeta(railgunMeta);
+        railgun = new GameItem(railgunItem, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, railgun);
         return true;
     }
 
@@ -220,64 +217,6 @@ public class QuakeCraft extends GamePlugin {
         }
     }
 
-    @SuppressWarnings("deprecation")
-	@Override
-    public void onPlayerInteract(Arena arena, PlayerInteractEvent event) {
-        if (arena.getStatus() != ArenaStatus.RUNNING || event.getAction() != Action.RIGHT_CLICK_AIR || event.getMaterial() != Material.BLAZE_ROD) {
-            return;
-        }
-        Player player = event.getPlayer();
-        String playerName = player.getName();
-        if (!reloaders.contains(playerName)) {
-            PlayerManager playerManager = ultimateGames.getPlayerManager();
-            Message messageManager = ultimateGames.getMessageManager();
-            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(playerManager.getPlayerArena(playerName));
-            Collection<LivingEntity> players = UGUtils.getLivingEntityTargets(player, 100, 0, false, true, true);
-            SHOOT_SOUND.play(player.getEyeLocation());
-            int playersShot = 0;
-            for (LivingEntity entity : players) {
-                if (entity instanceof Player) {
-                    Player targetedPlayer = (Player) entity;
-                    String targetedPlayerName = targetedPlayer.getName();
-                    if (targetedPlayer.getHealth() > 0.0 && playerManager.isPlayerInArena(targetedPlayerName) && playerManager.getPlayerArena(targetedPlayerName).equals(arena)) {
-                        targetedPlayer.getInventory().clear();
-                        targetedPlayer.updateInventory();
-                        endCooldown(targetedPlayer);
-                        targetedPlayer.setHealth(0.0);
-                        KILL_SOUND.play(targetedPlayer.getLocation());
-                        messageManager.sendGameMessage(arena, game, "Gib", playerName, targetedPlayerName);
-                        ultimateGames.getPointManager().addPoint(game, playerName, "kill", 1);
-                        ultimateGames.getPointManager().addPoint(game, playerName, "store", 1);
-                        ultimateGames.getPointManager().addPoint(game, targetedPlayerName, "death", 1);
-                        if (scoreBoard != null) {
-                            scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
-                        }
-                        playersShot++;
-                    }
-                }
-            }
-            switch (playersShot) {
-                case 2:
-                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Double");
-                    break;
-                case 3:
-                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Triple");
-                    break;
-                case 4:
-                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Ultra");
-                    break;
-                default:
-
-            }
-            if (scoreBoard.getScore(playerName) >= WIN_THRESHOLD) {
-                ultimateGames.getArenaManager().endArena(arena);
-            } else {
-                player.setExp(EXP_MIN);
-                startCooldown(player);
-            }
-        }
-    }
-
     @Override
     public void onPlayerFoodLevelChange(Arena arena, FoodLevelChangeEvent event) {
         event.setCancelled(true);
@@ -297,11 +236,7 @@ public class QuakeCraft extends GamePlugin {
     private void resetInventory(Player player) {
         final String playerName = player.getName();
         player.getInventory().clear();
-        ItemStack railgun = new ItemStack(Material.BLAZE_ROD);
-        ItemMeta railgunMeta = railgun.getItemMeta();
-        railgunMeta.setDisplayName("Railgun");
-        railgun.setItemMeta(railgunMeta);
-        player.getInventory().addItem(railgun, UGUtils.createInstructionBook(game));
+        player.getInventory().addItem(railgun.getItem(), UGUtils.createInstructionBook(game));
         player.updateInventory();
         player.setLevel(LEVEL_MIN);
         player.setExp(EXP_MAX);
@@ -316,8 +251,13 @@ public class QuakeCraft extends GamePlugin {
         }, 40L);
     }
 
+    public boolean isPlayerReloading(String playerName) {
+    	return reloaders.contains(playerName);
+    }
+
     public void startCooldown(Player player) {
         final String playerName = player.getName();
+        player.setExp(EXP_MIN);
         reloaders.add(playerName);
         reloadTasks.put(player.getName(), Bukkit.getScheduler().scheduleSyncRepeatingTask(ultimateGames, new Runnable() {
             @Override
