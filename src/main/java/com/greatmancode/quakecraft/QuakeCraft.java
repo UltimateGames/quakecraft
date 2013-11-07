@@ -38,6 +38,7 @@ public class QuakeCraft extends GamePlugin {
     private Set<String> reloaders = new HashSet<String>();
     private Map<String, Integer> reloadTasks = new HashMap<String, Integer>();
     private GameItem railgun;
+    private Map<String, GibStreak> streaks = new HashMap<String, GibStreak>();
     private static final float EXP_MAX = 1.0F;
     private static final float EXP_MIN = 0.0F;
     private static final float EXP_INCREMENT = 0.1F;
@@ -106,6 +107,7 @@ public class QuakeCraft extends GamePlugin {
             }
             spawnPoint.lock(true);
             spawnPoint.teleportPlayer(player);
+            streaks.put(playerName, new GibStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
         }
         for (PlayerSpawnPoint spawnPoint : spawnpointManager.getSpawnPointsOfArena(arena)) {
         	spawnPoint.lock(false);
@@ -128,6 +130,7 @@ public class QuakeCraft extends GamePlugin {
                     highestScorer = playerName;
                     highScore = playerScore;
                 }
+                streaks.remove(playerName);
             }
         }
         if (highestScorer != null) {
@@ -174,6 +177,7 @@ public class QuakeCraft extends GamePlugin {
     @Override
     public void removePlayer(Player player, Arena arena) {
     	endCooldown(player);
+        streaks.remove(player.getName());
         if (arena.getStatus() == ArenaStatus.RUNNING && arena.getPlayers().size() < 2) {
             ultimateGames.getArenaManager().endArena(arena);
         }
@@ -202,6 +206,10 @@ public class QuakeCraft extends GamePlugin {
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
         event.getDrops().clear();
         UGUtils.autoRespawn(event.getEntity());
+        GibStreak streak = streaks.get(event.getEntity().getName());
+        if (streak != null) {
+        	streak.reset();
+        }
     }
 
     @Override
@@ -284,5 +292,9 @@ public class QuakeCraft extends GamePlugin {
             reloaders.remove(playerName);
             player.setExp(EXP_MAX);
         }
+    }
+
+    public GibStreak getStreak(String playerName) {
+    	return streaks.get(playerName);
     }
 }

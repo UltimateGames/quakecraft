@@ -49,6 +49,7 @@ public class ShootAction extends ItemAction {
             Collection<LivingEntity> players = UGUtils.getLivingEntityTargets(player, 100, 0, false, true, true);
             SHOOT_SOUND.play(player.getEyeLocation());
             int playersShot = 0;
+            GibStreak playerStreak = quakeCraft.getStreak(playerName);
             for (LivingEntity entity : players) {
                 if (entity instanceof Player) {
                     Player targetedPlayer = (Player) entity;
@@ -66,6 +67,7 @@ public class ShootAction extends ItemAction {
                         if (scoreBoard != null) {
                             scoreBoard.setScore(playerName, scoreBoard.getScore(playerName) + 1);
                         }
+                        playerStreak.increaseCount();
                         playersShot++;
                     }
                 }

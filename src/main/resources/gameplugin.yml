@@ -26,3 +26,8 @@ Messages:
   GameEnd: "%s won %s on arena %s!"
   Gib: "%s gibbed %s!"
   MultipleKill: "&c%s kill!"
+  KillingSpree: "%s is on a killing spree!"
+  Rampage: "%s is on a rampage!"
+  Domination: "%s is dominating!"
+  Unstoppable: "%s is unstoppable!"
+  God: "%s is a god!"
