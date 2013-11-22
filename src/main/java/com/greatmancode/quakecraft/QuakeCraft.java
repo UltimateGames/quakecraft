@@ -1,11 +1,5 @@
 package com.greatmancode.quakecraft;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
@@ -17,7 +11,6 @@ import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.games.items.GameItem;
 import me.ampayne2.ultimategames.players.PlayerManager;
 import me.ampayne2.ultimategames.utils.UGUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,6 +24,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import java.util.*;
 
 public class QuakeCraft extends GamePlugin {
     private UltimateGames ultimateGames;

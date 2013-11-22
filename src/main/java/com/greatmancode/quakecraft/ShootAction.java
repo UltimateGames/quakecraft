@@ -1,14 +1,5 @@
 package com.greatmancode.quakecraft;
 
-import java.util.Collection;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-
-import me.ampayne2.ultimategames.Message;
 import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.ArenaStatus;
@@ -16,8 +7,17 @@ import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.effects.GameSound;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.games.items.ItemAction;
+import me.ampayne2.ultimategames.message.Message;
 import me.ampayne2.ultimategames.players.PlayerManager;
 import me.ampayne2.ultimategames.utils.UGUtils;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.Collection;
 
 public class ShootAction extends ItemAction {
 	private final UltimateGames ultimateGames;
