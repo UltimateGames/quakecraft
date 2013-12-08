@@ -32,23 +32,67 @@ public class QuakeCraft extends GamePlugin {
     private Game game;
     private Set<String> reloaders = new HashSet<String>();
     private Map<String, Integer> reloadTasks = new HashMap<String, Integer>();
-    private GameItem railgun;
     private Map<String, GibStreak> streaks = new HashMap<String, GibStreak>();
     private static final float EXP_MAX = 1.0F;
     private static final float EXP_MIN = 0.0F;
     private static final float EXP_INCREMENT = 0.1F;
     private static final int LEVEL_MIN = 0;
+    private Map<String, ItemStack> gameItem = new HashMap<String, ItemStack>();
+    private Map<String, String> playerWeapon = new HashMap<String, String>();
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
         this.ultimateGames = ultimateGames;
         this.game = game;
-        ItemStack railgunItem = new ItemStack(Material.BLAZE_ROD);
-        ItemMeta railgunMeta = railgunItem.getItemMeta();
-        railgunMeta.setDisplayName("Railgun");
-        railgunItem.setItemMeta(railgunMeta);
-        railgun = new GameItem(railgunItem, false, new ShootAction(ultimateGames, this, game));
-        ultimateGames.getGameItemManager().registerGameItem(game, railgun);
+
+        ItemStack woodHoe = new ItemStack(Material.WOOD_HOE);
+        ItemMeta woodHoeMeta = woodHoe.getItemMeta();
+        woodHoeMeta.setDisplayName("Railgun");
+        woodHoe.setItemMeta(woodHoeMeta);
+        GameItem woodHoeRailGun = new GameItem(woodHoe, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, woodHoeRailGun);
+        gameItem.put("woodhoe", woodHoe);
+
+        ItemStack stoneHoe = new ItemStack(Material.STONE_HOE);
+        ItemMeta stoneHoeMeta = stoneHoe.getItemMeta();
+        stoneHoeMeta.setDisplayName("Railgun");
+        woodHoe.setItemMeta(stoneHoeMeta);
+        GameItem stoneHoeRailGun = new GameItem(stoneHoe, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, stoneHoeRailGun);
+        gameItem.put("stonehoe", stoneHoe);
+
+        ItemStack ironHoe = new ItemStack(Material.IRON_HOE);
+        ItemMeta ironHoeMeta = ironHoe.getItemMeta();
+        woodHoeMeta.setDisplayName("Railgun");
+        woodHoe.setItemMeta(ironHoeMeta);
+        GameItem ironHoeRailGun = new GameItem(ironHoe, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, ironHoeRailGun);
+        gameItem.put("ironhoe", ironHoe);
+
+        ItemStack goldHoe = new ItemStack(Material.GOLD_HOE);
+        ItemMeta goldHoeMeta = goldHoe.getItemMeta();
+        goldHoeMeta.setDisplayName("Railgun");
+        goldHoe.setItemMeta(goldHoeMeta);
+        GameItem goldHoeRailGun = new GameItem(goldHoe, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, goldHoeRailGun);
+        gameItem.put("goldhoe", goldHoe);
+
+        ItemStack diamondHoe = new ItemStack(Material.DIAMOND_HOE);
+        ItemMeta diamondHoeMeta = diamondHoe.getItemMeta();
+        diamondHoeMeta.setDisplayName("Railgun");
+        diamondHoe.setItemMeta(diamondHoeMeta);
+        GameItem diamondHoeRailGun = new GameItem(diamondHoe, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, diamondHoeRailGun);
+        gameItem.put("diamondhoe", diamondHoe);
+
+        ItemStack blazeRod = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta blazeRodMeta = blazeRod.getItemMeta();
+        blazeRodMeta.setDisplayName("Railgun");
+        blazeRod.setItemMeta(woodHoeMeta);
+        GameItem blazeRodRailGun = new GameItem(blazeRod, false, new ShootAction(ultimateGames, this, game));
+        ultimateGames.getGameItemManager().registerGameItem(game, blazeRodRailGun);
+        gameItem.put("blazerod", blazeRod);
+
         return true;
     }
 
@@ -165,6 +209,19 @@ public class QuakeCraft extends GamePlugin {
         }
         player.setHealth(20.0);
         player.setFoodLevel(20);
+        if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "blazerod")) {
+            playerWeapon.put(player.getName(), "blazerod");
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "diamondhoe")) {
+            playerWeapon.put(player.getName(), "diamondhoe");
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "goldhoe")) {
+            playerWeapon.put(player.getName(), "goldhoe");
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "ironhoe")) {
+            playerWeapon.put(player.getName(), "ironhoe");
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "stonehoe")) {
+            playerWeapon.put(player.getName(), "stonehoe");
+        } else {
+            playerWeapon.put(player.getName(), "woodhoe");
+        }
         resetInventory(player);
         return true;
     }
@@ -239,7 +296,7 @@ public class QuakeCraft extends GamePlugin {
     private void resetInventory(Player player) {
         final String playerName = player.getName();
         player.getInventory().clear();
-        player.getInventory().addItem(railgun.getItem(), UGUtils.createInstructionBook(game));
+        player.getInventory().addItem(gameItem.get(playerWeapon.get(player.getName())), UGUtils.createInstructionBook(game));
         player.updateInventory();
         player.setLevel(LEVEL_MIN);
         player.setExp(EXP_MAX);
