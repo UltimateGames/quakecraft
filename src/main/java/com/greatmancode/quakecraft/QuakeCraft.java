@@ -35,10 +35,13 @@ public class QuakeCraft extends GamePlugin {
     private Map<String, GibStreak> streaks = new HashMap<String, GibStreak>();
     private static final float EXP_MAX = 1.0F;
     private static final float EXP_MIN = 0.0F;
-    private static final float EXP_INCREMENT = 0.1F;
     private static final int LEVEL_MIN = 0;
     private Map<String, ItemStack> gameItem = new HashMap<String, ItemStack>();
     private Map<String, String> playerWeapon = new HashMap<String, String>();
+
+    //Reload related stuff
+    private Map<String, Float> reloadTime = new HashMap<String, Float>();
+    private Map<String, Float> currentReloadtime = new HashMap<String, Float>();
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -223,6 +226,28 @@ public class QuakeCraft extends GamePlugin {
             playerWeapon.put(player.getName(), "woodhoe");
         }
         resetInventory(player);
+
+        //We retrieve the reload time of the player
+        if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "10trigger")) {
+            reloadTime.put(player.getName(), 1.0f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "11trigger")) {
+            reloadTime.put(player.getName(), 1.1f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "12trigger")) {
+            reloadTime.put(player.getName(), 1.2f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "13trigger")) {
+            reloadTime.put(player.getName(), 1.3f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "14trigger")) {
+            reloadTime.put(player.getName(), 1.4f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "15trigger")) {
+            reloadTime.put(player.getName(), 1.5f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "16trigger")) {
+            reloadTime.put(player.getName(), 1.6f * 20f);
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "17trigger")) {
+            reloadTime.put(player.getName(), 1.7f * 20f);
+        } else {
+            reloadTime.put(player.getName(), 1.8f * 20f);
+        }
+
         return true;
     }
 
@@ -319,21 +344,22 @@ public class QuakeCraft extends GamePlugin {
         final String playerName = player.getName();
         player.setExp(EXP_MIN);
         reloaders.add(playerName);
+        currentReloadtime.put(playerName, 0f);
         reloadTasks.put(player.getName(), Bukkit.getScheduler().scheduleSyncRepeatingTask(ultimateGames, new Runnable() {
             @Override
             public void run() {
                 Player player = Bukkit.getPlayerExact(playerName);
                 if (reloaders.contains(playerName)) {
-                    float newExp = player.getExp() + EXP_INCREMENT;
+                    float newExp = currentReloadtime.get(playerName) / reloadTime.get(playerName);
                     if (newExp >= EXP_MAX) {
-                        player.setExp(EXP_MAX);
                         endCooldown(player);
                     } else {
-                        player.setExp(player.getExp() + EXP_INCREMENT);
+                        player.setExp(newExp);
+                        currentReloadtime.put(playerName, currentReloadtime.get(playerName) + 1);
                     }
                 }
             }
-        }, 0, 2L));
+        }, 0, 1L));
     }
 
     public void endCooldown(Player player) {
@@ -343,6 +369,7 @@ public class QuakeCraft extends GamePlugin {
             reloadTasks.remove(playerName);
             reloaders.remove(playerName);
             player.setExp(EXP_MAX);
+            reloadTime.remove(playerName);
         }
     }
 
