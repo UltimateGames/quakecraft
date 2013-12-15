@@ -37,7 +37,7 @@ public class ShootAction extends ItemAction {
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean perform(Arena arena, PlayerInteractEvent event) {
-        if (arena.getStatus() != ArenaStatus.RUNNING || event.getAction() != Action.RIGHT_CLICK_AIR || event.getMaterial() != Material.BLAZE_ROD) {
+        if (arena.getStatus() != ArenaStatus.RUNNING || event.getAction() != Action.RIGHT_CLICK_AIR) {
             return false;
         }
         Player player = event.getPlayer();

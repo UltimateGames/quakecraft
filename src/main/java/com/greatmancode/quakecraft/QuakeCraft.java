@@ -369,7 +369,6 @@ public class QuakeCraft extends GamePlugin {
             reloadTasks.remove(playerName);
             reloaders.remove(playerName);
             player.setExp(EXP_MAX);
-            reloadTime.remove(playerName);
         }
     }
 
