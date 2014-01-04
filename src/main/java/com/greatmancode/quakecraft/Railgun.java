@@ -6,37 +6,37 @@ import me.ampayne2.ultimategames.arenas.ArenaStatus;
 import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.effects.GameSound;
 import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.games.items.ItemAction;
+import me.ampayne2.ultimategames.games.items.GameItem;
 import me.ampayne2.ultimategames.message.Message;
 import me.ampayne2.ultimategames.players.PlayerManager;
 import me.ampayne2.ultimategames.utils.UGUtils;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 
-public class ShootAction extends ItemAction {
-	private final UltimateGames ultimateGames;
-	private final QuakeCraft quakeCraft;
-	private final Game game;
+public class Railgun extends GameItem {
+    private final UltimateGames ultimateGames;
+    private final Game game;
+    private final QuakeCraft quakeCraft;
     private static final GameSound SHOOT_SOUND = new GameSound(Sound.BLAZE_HIT, 1, 2);
     private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 2, 1);
     private static final int WIN_THRESHOLD = 25;
 
-	public ShootAction(UltimateGames ultimateGames, QuakeCraft quakeCraft, Game game) {
-		super(Action.RIGHT_CLICK_AIR);
-		this.ultimateGames = ultimateGames;
-		this.quakeCraft = quakeCraft;
-		this.game = game;
-	}
+    public Railgun(UltimateGames ultimateGames, Game game, QuakeCraft quakeCraft, ItemStack itemStack) {
+        super(itemStack, false);
+        this.ultimateGames = ultimateGames;
+        this.game = game;
+        this.quakeCraft = quakeCraft;
+    }
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public boolean perform(Arena arena, PlayerInteractEvent event) {
+    @SuppressWarnings("deprecation")
+    @Override
+    public boolean click(Arena arena, PlayerInteractEvent event) {
         if (arena.getStatus() != ArenaStatus.RUNNING || event.getAction() != Action.RIGHT_CLICK_AIR) {
             return false;
         }
@@ -91,6 +91,6 @@ public class ShootAction extends ItemAction {
                 quakeCraft.startCooldown(player);
             }
         }
-		return true;
-	}
+        return true;
+    }
 }

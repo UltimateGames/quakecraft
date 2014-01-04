@@ -52,7 +52,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta woodHoeMeta = woodHoe.getItemMeta();
         woodHoeMeta.setDisplayName("Small Railgun");
         woodHoe.setItemMeta(woodHoeMeta);
-        GameItem woodHoeRailGun = new GameItem(woodHoe, false, new ShootAction(ultimateGames, this, game));
+        GameItem woodHoeRailGun = new Railgun(ultimateGames, game, this, woodHoe);
         ultimateGames.getGameItemManager().registerGameItem(game, woodHoeRailGun);
         gameItem.put("woodhoe", woodHoe);
 
@@ -60,7 +60,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta stoneHoeMeta = stoneHoe.getItemMeta();
         stoneHoeMeta.setDisplayName("Good Railgun");
         stoneHoe.setItemMeta(stoneHoeMeta);
-        GameItem stoneHoeRailGun = new GameItem(stoneHoe, false, new ShootAction(ultimateGames, this, game));
+        GameItem stoneHoeRailGun = new Railgun(ultimateGames, game, this, stoneHoe);
         ultimateGames.getGameItemManager().registerGameItem(game, stoneHoeRailGun);
         gameItem.put("stonehoe", stoneHoe);
 
@@ -68,7 +68,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta ironHoeMeta = ironHoe.getItemMeta();
         ironHoeMeta.setDisplayName("Superior Railgun");
         ironHoe.setItemMeta(ironHoeMeta);
-        GameItem ironHoeRailGun = new GameItem(ironHoe, false, new ShootAction(ultimateGames, this, game));
+        GameItem ironHoeRailGun = new Railgun(ultimateGames, game, this, ironHoe);
         ultimateGames.getGameItemManager().registerGameItem(game, ironHoeRailGun);
         gameItem.put("ironhoe", ironHoe);
 
@@ -76,7 +76,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta goldHoeMeta = goldHoe.getItemMeta();
         goldHoeMeta.setDisplayName("Epic Railgun");
         goldHoe.setItemMeta(goldHoeMeta);
-        GameItem goldHoeRailGun = new GameItem(goldHoe, false, new ShootAction(ultimateGames, this, game));
+        GameItem goldHoeRailGun = new Railgun(ultimateGames, game, this, goldHoe);
         ultimateGames.getGameItemManager().registerGameItem(game, goldHoeRailGun);
         gameItem.put("goldhoe", goldHoe);
 
@@ -84,7 +84,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta diamondHoeMeta = diamondHoe.getItemMeta();
         diamondHoeMeta.setDisplayName("Marvelous Railgun");
         diamondHoe.setItemMeta(diamondHoeMeta);
-        GameItem diamondHoeRailGun = new GameItem(diamondHoe, false, new ShootAction(ultimateGames, this, game));
+        GameItem diamondHoeRailGun = new Railgun(ultimateGames, game, this, diamondHoe);
         ultimateGames.getGameItemManager().registerGameItem(game, diamondHoeRailGun);
         gameItem.put("diamondhoe", diamondHoe);
 
@@ -92,7 +92,7 @@ public class QuakeCraft extends GamePlugin {
         ItemMeta blazeRodMeta = blazeRod.getItemMeta();
         blazeRodMeta.setDisplayName("Best Railgun");
         blazeRod.setItemMeta(blazeRodMeta);
-        GameItem blazeRodRailGun = new GameItem(blazeRod, false, new ShootAction(ultimateGames, this, game));
+        GameItem blazeRodRailGun = new Railgun(ultimateGames, game, this, blazeRod);
         ultimateGames.getGameItemManager().registerGameItem(game, blazeRodRailGun);
         gameItem.put("blazerod", blazeRod);
 
