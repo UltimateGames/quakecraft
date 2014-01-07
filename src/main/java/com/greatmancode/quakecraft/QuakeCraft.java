@@ -212,15 +212,15 @@ public class QuakeCraft extends GamePlugin {
         }
         player.setHealth(20.0);
         player.setFoodLevel(20);
-        if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "blazerod")) {
+        if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "hoe5")) {
             playerWeapon.put(player.getName(), "blazerod");
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "diamondhoe")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "hoe4")) {
             playerWeapon.put(player.getName(), "diamondhoe");
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "goldhoe")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "hoe3")) {
             playerWeapon.put(player.getName(), "goldhoe");
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "ironhoe")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "hoe2")) {
             playerWeapon.put(player.getName(), "ironhoe");
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "stonehoe")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "hoe1")) {
             playerWeapon.put(player.getName(), "stonehoe");
         } else {
             playerWeapon.put(player.getName(), "woodhoe");
@@ -228,24 +228,18 @@ public class QuakeCraft extends GamePlugin {
         resetInventory(player);
 
         //We retrieve the reload time of the player
-        if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "10trigger")) {
+        if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "trigger5")) {
             reloadTime.put(player.getName(), 1.0f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "11trigger")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "trigger4")) {
             reloadTime.put(player.getName(), 1.1f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "12trigger")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "trigger3")) {
             reloadTime.put(player.getName(), 1.2f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "13trigger")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "trigger2")) {
             reloadTime.put(player.getName(), 1.3f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "14trigger")) {
+        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "trigger1")) {
             reloadTime.put(player.getName(), 1.4f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "15trigger")) {
-            reloadTime.put(player.getName(), 1.5f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "16trigger")) {
-            reloadTime.put(player.getName(), 1.6f * 20f);
-        } else if (ultimateGames.getPointManager().hasPerk(game, player.getName(), "17trigger")) {
-            reloadTime.put(player.getName(), 1.7f * 20f);
         } else {
-            reloadTime.put(player.getName(), 1.8f * 20f);
+            reloadTime.put(player.getName(), 1.5f * 20f);
         }
 
         return true;
