@@ -19,7 +19,7 @@ public class GibStreakAction extends StreakAction {
 
 	@Override
 	public void perform(ArenaPlayer player) {
-		ultimateGames.getMessageManager().sendGameMessage(player.getArena(), game, messagePath, player.getPlayerName());
+		ultimateGames.getMessenger().sendGameMessage(player.getArena(), game, messagePath, player.getPlayerName());
 		ultimateGames.getPointManager().addPoint(game, player.getPlayerName(), "store", 1);
 	}
 }

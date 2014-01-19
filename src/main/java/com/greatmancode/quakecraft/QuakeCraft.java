@@ -137,7 +137,7 @@ public class QuakeCraft extends GamePlugin {
     public boolean beginArena(Arena arena) {
         ultimateGames.getCountdownManager().createEndingCountdown(arena, 1200, false);
 
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createArenaScoreboard(arena, "Gibs");
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Gibs");
         SpawnpointManager spawnpointManager = ultimateGames.getSpawnpointManager();
         for (String playerName : arena.getPlayers()) {
         	Player player = Bukkit.getPlayerExact(playerName);
@@ -164,7 +164,7 @@ public class QuakeCraft extends GamePlugin {
         String highestScorer = null;
         Integer highScore = 0;
         List<String> players = arena.getPlayers();
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(arena);
+        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             for (String playerName : players) {
                 Integer playerScore = scoreBoard.getScore(playerName);
@@ -176,7 +176,7 @@ public class QuakeCraft extends GamePlugin {
             }
         }
         if (highestScorer != null) {
-            ultimateGames.getMessageManager().sendGameMessage(Bukkit.getServer(), game, "GameEnd", highestScorer, game.getName(), arena.getName());
+            ultimateGames.getMessenger().sendGameMessage(Bukkit.getServer(), game, "GameEnd", highestScorer, game.getName(), arena.getName());
             if (highScore == 25) {
                 ultimateGames.getPointManager().addPoint(game, highestScorer, "store", 25);
                 ultimateGames.getPointManager().addPoint(game, highestScorer, "win", 1);
@@ -202,7 +202,7 @@ public class QuakeCraft extends GamePlugin {
     @Override
     public boolean addPlayer(Player player, Arena arena) {
         if (arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().hasStartingCountdown(arena)) {
-            ultimateGames.getCountdownManager().createStartingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.StartWaitTime"));
+            ultimateGames.getCountdownManager().createStartingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getInt("CustomValues.StartWaitTime"));
         }
         PlayerSpawnPoint spawnPoint = ultimateGames.getSpawnpointManager().getRandomSpawnPoint(arena);
         spawnPoint.lock(false);

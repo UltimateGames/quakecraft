@@ -26,7 +26,7 @@ public class GibStreak extends Streak {
             String playerName = getPlayer().getPlayerName();
             Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
             if (arena != null) {
-                ultimateGames.getMessageManager().sendGameMessage(arena, game, "Shutdown", playerName);
+                ultimateGames.getMessenger().sendGameMessage(arena, game, "Shutdown", playerName);
             }
         }
         super.reset();

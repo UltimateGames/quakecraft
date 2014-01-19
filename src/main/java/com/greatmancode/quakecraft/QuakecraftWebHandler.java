@@ -24,7 +24,7 @@ public class QuakecraftWebHandler implements WebHandler {
         Gson gson = new Gson();
         Map<String, Integer> map = new HashMap<String, Integer>();
 
-        ArenaScoreboard scoreBoard = ug.getScoreboardManager().getArenaScoreboard(arena);
+        ArenaScoreboard scoreBoard = ug.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             for (String playerName : arena.getPlayers()) {
                 map.put(playerName, scoreBoard.getScore(playerName));

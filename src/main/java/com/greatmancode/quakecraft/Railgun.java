@@ -7,7 +7,7 @@ import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.effects.GameSound;
 import me.ampayne2.ultimategames.games.Game;
 import me.ampayne2.ultimategames.games.items.GameItem;
-import me.ampayne2.ultimategames.message.Message;
+import me.ampayne2.ultimategames.message.Messenger;
 import me.ampayne2.ultimategames.players.PlayerManager;
 import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Sound;
@@ -44,8 +44,8 @@ public class Railgun extends GameItem {
         String playerName = player.getName();
         if (!quakeCraft.isPlayerReloading(playerName)) {
             PlayerManager playerManager = ultimateGames.getPlayerManager();
-            Message messageManager = ultimateGames.getMessageManager();
-            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getArenaScoreboard(playerManager.getPlayerArena(playerName));
+            Messenger messageManager = ultimateGames.getMessenger();
+            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(playerManager.getPlayerArena(playerName));
             Collection<LivingEntity> players = UGUtils.getLivingEntityTargets(player, 100, 0, false, true, true);
             SHOOT_SOUND.play(player.getEyeLocation());
             int playersShot = 0;
