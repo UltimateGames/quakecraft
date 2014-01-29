@@ -1,16 +1,16 @@
 package com.greatmancode.quakecraft;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.api.GamePlugin;
-import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.ArenaStatus;
-import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
-import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
-import me.ampayne2.ultimategames.arenas.spawnpoints.SpawnpointManager;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.games.items.GameItem;
-import me.ampayne2.ultimategames.players.PlayerManager;
-import me.ampayne2.ultimategames.utils.UGUtils;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.arenas.Arena;
+import me.ampayne2.ultimategames.api.arenas.ArenaStatus;
+import me.ampayne2.ultimategames.api.arenas.scoreboards.Scoreboard;
+import me.ampayne2.ultimategames.api.arenas.spawnpoints.PlayerSpawnPoint;
+import me.ampayne2.ultimategames.api.arenas.spawnpoints.SpawnpointManager;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.games.GamePlugin;
+import me.ampayne2.ultimategames.api.games.items.GameItem;
+import me.ampayne2.ultimategames.api.players.PlayerManager;
+import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -30,18 +30,18 @@ import java.util.*;
 public class QuakeCraft extends GamePlugin {
     private UltimateGames ultimateGames;
     private Game game;
-    private Set<String> reloaders = new HashSet<String>();
-    private Map<String, Integer> reloadTasks = new HashMap<String, Integer>();
-    private Map<String, GibStreak> streaks = new HashMap<String, GibStreak>();
+    private Set<String> reloaders = new HashSet<>();
+    private Map<String, Integer> reloadTasks = new HashMap<>();
+    private Map<String, GibStreak> streaks = new HashMap<>();
     private static final float EXP_MAX = 1.0F;
     private static final float EXP_MIN = 0.0F;
     private static final int LEVEL_MIN = 0;
-    private Map<String, ItemStack> gameItem = new HashMap<String, ItemStack>();
-    private Map<String, String> playerWeapon = new HashMap<String, String>();
+    private Map<String, ItemStack> gameItem = new HashMap<>();
+    private Map<String, String> playerWeapon = new HashMap<>();
 
     //Reload related stuff
-    private Map<String, Float> reloadTime = new HashMap<String, Float>();
-    private Map<String, Float> currentReloadtime = new HashMap<String, Float>();
+    private Map<String, Float> reloadTime = new HashMap<>();
+    private Map<String, Float> currentReloadtime = new HashMap<>();
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -100,7 +100,8 @@ public class QuakeCraft extends GamePlugin {
     }
 
     @Override
-    public void unloadGame() {}
+    public void unloadGame() {
+    }
 
     @Override
     public boolean reloadGame() {
@@ -137,22 +138,22 @@ public class QuakeCraft extends GamePlugin {
     public boolean beginArena(Arena arena) {
         ultimateGames.getCountdownManager().createEndingCountdown(arena, 1200, false);
 
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Gibs");
+        Scoreboard scoreBoard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Gibs");
         SpawnpointManager spawnpointManager = ultimateGames.getSpawnpointManager();
         for (String playerName : arena.getPlayers()) {
-        	Player player = Bukkit.getPlayerExact(playerName);
+            Player player = Bukkit.getPlayerExact(playerName);
             scoreBoard.addPlayer(player);
             scoreBoard.setScore(playerName, 0);
             PlayerSpawnPoint spawnPoint = spawnpointManager.getRandomSpawnPoint(arena);
             while (spawnPoint.getPlayer() != null) {
-            	spawnPoint = spawnpointManager.getRandomSpawnPoint(arena);
+                spawnPoint = spawnpointManager.getRandomSpawnPoint(arena);
             }
             spawnPoint.lock(true);
             spawnPoint.teleportPlayer(player);
             streaks.put(playerName, new GibStreak(ultimateGames, game, ultimateGames.getPlayerManager().getArenaPlayer(playerName)));
         }
         for (PlayerSpawnPoint spawnPoint : spawnpointManager.getSpawnPointsOfArena(arena)) {
-        	spawnPoint.lock(false);
+            spawnPoint.lock(false);
         }
         scoreBoard.setVisible(true);
 
@@ -164,7 +165,7 @@ public class QuakeCraft extends GamePlugin {
         String highestScorer = null;
         Integer highScore = 0;
         List<String> players = arena.getPlayers();
-        ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
+        Scoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(arena);
         if (scoreBoard != null) {
             for (String playerName : players) {
                 Integer playerScore = scoreBoard.getScore(playerName);
@@ -182,11 +183,6 @@ public class QuakeCraft extends GamePlugin {
                 ultimateGames.getPointManager().addPoint(game, highestScorer, "win", 1);
             }
         }
-    }
-
-    @Override
-    public boolean resetArena(Arena arena) {
-        return true;
     }
 
     @Override
@@ -247,7 +243,7 @@ public class QuakeCraft extends GamePlugin {
 
     @Override
     public void removePlayer(Player player, Arena arena) {
-    	endCooldown(player);
+        endCooldown(player);
         streaks.remove(player.getName());
         if (arena.getStatus() == ArenaStatus.RUNNING && arena.getPlayers().size() < 2) {
             ultimateGames.getArenaManager().endArena(arena);
@@ -271,15 +267,16 @@ public class QuakeCraft extends GamePlugin {
     }
 
     @Override
-    public void removeSpectator(Player player, Arena arena) {}
+    public void removeSpectator(Player player, Arena arena) {
+    }
 
     @Override
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
         event.getDrops().clear();
-        UGUtils.autoRespawn(event.getEntity());
+        UGUtils.autoRespawn(ultimateGames.getPlugin(), event.getEntity());
         GibStreak streak = streaks.get(event.getEntity().getName());
         if (streak != null) {
-        	streak.reset();
+            streak.reset();
         }
     }
 
@@ -319,7 +316,7 @@ public class QuakeCraft extends GamePlugin {
         player.updateInventory();
         player.setLevel(LEVEL_MIN);
         player.setExp(EXP_MAX);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 PlayerManager playerManager = ultimateGames.getPlayerManager();
@@ -331,7 +328,7 @@ public class QuakeCraft extends GamePlugin {
     }
 
     public boolean isPlayerReloading(String playerName) {
-    	return reloaders.contains(playerName);
+        return reloaders.contains(playerName);
     }
 
     public void startCooldown(Player player) {
@@ -339,7 +336,7 @@ public class QuakeCraft extends GamePlugin {
         player.setExp(EXP_MIN);
         reloaders.add(playerName);
         currentReloadtime.put(playerName, 0f);
-        reloadTasks.put(player.getName(), Bukkit.getScheduler().scheduleSyncRepeatingTask(ultimateGames, new Runnable() {
+        reloadTasks.put(player.getName(), Bukkit.getScheduler().scheduleSyncRepeatingTask(ultimateGames.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 Player player = Bukkit.getPlayerExact(playerName);
@@ -367,6 +364,6 @@ public class QuakeCraft extends GamePlugin {
     }
 
     public GibStreak getStreak(String playerName) {
-    	return streaks.get(playerName);
+        return streaks.get(playerName);
     }
 }

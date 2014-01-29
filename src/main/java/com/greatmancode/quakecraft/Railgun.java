@@ -1,15 +1,15 @@
 package com.greatmancode.quakecraft;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.ArenaStatus;
-import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
-import me.ampayne2.ultimategames.effects.GameSound;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.games.items.GameItem;
-import me.ampayne2.ultimategames.message.Messenger;
-import me.ampayne2.ultimategames.players.PlayerManager;
-import me.ampayne2.ultimategames.utils.UGUtils;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.arenas.Arena;
+import me.ampayne2.ultimategames.api.arenas.ArenaStatus;
+import me.ampayne2.ultimategames.api.arenas.scoreboards.Scoreboard;
+import me.ampayne2.ultimategames.api.effects.GameSound;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.games.items.GameItem;
+import me.ampayne2.ultimategames.api.message.Messenger;
+import me.ampayne2.ultimategames.api.players.PlayerManager;
+import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public class Railgun extends GameItem {
         if (!quakeCraft.isPlayerReloading(playerName)) {
             PlayerManager playerManager = ultimateGames.getPlayerManager();
             Messenger messageManager = ultimateGames.getMessenger();
-            ArenaScoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(playerManager.getPlayerArena(playerName));
+            Scoreboard scoreBoard = ultimateGames.getScoreboardManager().getScoreboard(playerManager.getPlayerArena(playerName));
             Collection<LivingEntity> players = UGUtils.getLivingEntityTargets(player, 100, 0, false, true, true);
             SHOOT_SOUND.play(player.getEyeLocation());
             int playersShot = 0;
@@ -85,7 +85,7 @@ public class Railgun extends GameItem {
                 default:
 
             }
-            if (scoreBoard.getScore(playerName) >= WIN_THRESHOLD) {
+            if (scoreBoard != null && scoreBoard.getScore(playerName) >= WIN_THRESHOLD) {
                 ultimateGames.getArenaManager().endArena(arena);
             } else {
                 quakeCraft.startCooldown(player);
