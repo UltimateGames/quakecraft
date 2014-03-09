@@ -11,11 +11,11 @@ public class GibStreak extends Streak {
     private Game game;
 
     public GibStreak(UltimateGames ultimateGames, Game game, ArenaPlayer player) {
-        super(player, new GibStreakAction(ultimateGames, game, 5, "KillingSpree"),
-                new GibStreakAction(ultimateGames, game, 10, "Rampage"),
-                new GibStreakAction(ultimateGames, game, 15, "Domination"),
-                new GibStreakAction(ultimateGames, game, 20, "Unstoppable"),
-                new GibStreakAction(ultimateGames, game, 25, "God"));
+        super(player, new GibStreakAction(ultimateGames, game, 5, QCMessage.KILLING_SPREE),
+                new GibStreakAction(ultimateGames, game, 10, QCMessage.RAMPAGE),
+                new GibStreakAction(ultimateGames, game, 15, QCMessage.DOMINATION),
+                new GibStreakAction(ultimateGames, game, 20, QCMessage.UNSTOPPABLE),
+                new GibStreakAction(ultimateGames, game, 25, QCMessage.GOD));
 
         this.ultimateGames = ultimateGames;
         this.game = game;
@@ -27,7 +27,7 @@ public class GibStreak extends Streak {
             String playerName = getPlayer().getPlayerName();
             Arena arena = ultimateGames.getPlayerManager().getPlayerArena(playerName);
             if (arena != null) {
-                ultimateGames.getMessenger().sendGameMessage(arena, game, "Shutdown", playerName);
+                ultimateGames.getMessenger().sendGameMessage(arena, game, QCMessage.SHUTDOWN, playerName);
             }
         }
         super.reset();

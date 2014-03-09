@@ -47,6 +47,7 @@ public class QuakeCraft extends GamePlugin {
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
         this.ultimateGames = ultimateGames;
         this.game = game;
+        game.setMessages(QCMessage.class);
 
         ItemStack woodHoe = new ItemStack(Material.WOOD_HOE);
         ItemMeta woodHoeMeta = woodHoe.getItemMeta();
@@ -177,7 +178,7 @@ public class QuakeCraft extends GamePlugin {
             }
         }
         if (highestScorer != null) {
-            ultimateGames.getMessenger().sendGameMessage(Bukkit.getServer(), game, "GameEnd", highestScorer, game.getName(), arena.getName());
+            ultimateGames.getMessenger().sendGameMessage(Bukkit.getServer(), game, QCMessage.GAME_END, highestScorer, game.getName(), arena.getName());
             if (highScore == 25) {
                 ultimateGames.getPointManager().addPoint(game, highestScorer, "store", 25);
                 ultimateGames.getPointManager().addPoint(game, highestScorer, "win", 1);

@@ -60,7 +60,7 @@ public class Railgun extends GameItem {
                         quakeCraft.endCooldown(targetedPlayer);
                         targetedPlayer.setHealth(0.0);
                         KILL_SOUND.play(targetedPlayer.getLocation());
-                        messageManager.sendGameMessage(arena, game, "Gib", playerName, targetedPlayerName);
+                        messageManager.sendGameMessage(arena, game, QCMessage.GIB, playerName, targetedPlayerName);
                         ultimateGames.getPointManager().addPoint(game, playerName, "kill", 1);
                         ultimateGames.getPointManager().addPoint(game, playerName, "store", 1);
                         ultimateGames.getPointManager().addPoint(game, targetedPlayerName, "death", 1);
@@ -74,13 +74,13 @@ public class Railgun extends GameItem {
             }
             switch (playersShot) {
                 case 2:
-                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Double");
+                    messageManager.sendGameMessage(arena, game, QCMessage.MULTIPLE_KILL, "Double");
                     break;
                 case 3:
-                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Triple");
+                    messageManager.sendGameMessage(arena, game, QCMessage.MULTIPLE_KILL, "Triple");
                     break;
                 case 4:
-                    messageManager.sendGameMessage(arena, game, "MultipleKill", "Ultra");
+                    messageManager.sendGameMessage(arena, game, QCMessage.MULTIPLE_KILL, "Ultra");
                     break;
                 default:
 
