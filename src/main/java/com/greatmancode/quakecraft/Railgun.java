@@ -4,12 +4,12 @@ import me.ampayne2.ultimategames.api.UltimateGames;
 import me.ampayne2.ultimategames.api.arenas.Arena;
 import me.ampayne2.ultimategames.api.arenas.ArenaStatus;
 import me.ampayne2.ultimategames.api.arenas.scoreboards.Scoreboard;
-import me.ampayne2.ultimategames.api.effects.GameSound;
 import me.ampayne2.ultimategames.api.games.Game;
 import me.ampayne2.ultimategames.api.games.items.GameItem;
 import me.ampayne2.ultimategames.api.message.Messenger;
 import me.ampayne2.ultimategames.api.players.PlayerManager;
 import me.ampayne2.ultimategames.api.utils.UGUtils;
+import ninja.amp.ampeffects.effects.sounds.SoundEffect;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,8 +23,8 @@ public class Railgun extends GameItem {
     private final UltimateGames ultimateGames;
     private final Game game;
     private final QuakeCraft quakeCraft;
-    private static final GameSound SHOOT_SOUND = new GameSound(Sound.BLAZE_HIT, 1, 2);
-    private static final GameSound KILL_SOUND = new GameSound(Sound.EXPLODE, 2, 1);
+    private static final SoundEffect SHOOT_SOUND = new SoundEffect(Sound.BLAZE_HIT, 1, 2);
+    private static final SoundEffect KILL_SOUND = new SoundEffect(Sound.EXPLODE, 2, 1);
     private static final int WIN_THRESHOLD = 25;
 
     public Railgun(UltimateGames ultimateGames, Game game, QuakeCraft quakeCraft, ItemStack itemStack) {
